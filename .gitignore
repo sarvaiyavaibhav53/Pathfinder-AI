@@ -57,3 +57,6 @@ pnpm-debug.log*
 .cache/
 # Local development database
 *.db
+
+# Local development/admin test script
+backend/check_admin.py
