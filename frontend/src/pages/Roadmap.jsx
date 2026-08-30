@@ -5,6 +5,7 @@ import SideNavBar from '../components/SideNavBar';
 import { fetchApi } from '../api/apiClient';
 import { useDomain } from '../context/DomainContext';
 import { useAuth } from '../context/AuthContext';
+import ChatWidget from '../components/ChatWidget';
 
 const Roadmap = () => {
   const navigate = useNavigate();
@@ -285,6 +286,24 @@ const Roadmap = () => {
           )}
         </div>
       </main>
+
+      <ChatWidget
+        pageType="roadmap"
+        contextData={{
+          domain: targetDomain || undefined,
+          recommendation: roadmap
+            ? {
+                match_percent: typeof roadmap.match_score === 'number' ? roadmap.match_score : undefined,
+                missing_skills: Array.isArray(roadmap.missing_skills)
+                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.name || String(s)))
+                  : undefined,
+                companies_you_would_qualify_for: Array.isArray(roadmap.qualified_companies)
+                  ? roadmap.qualified_companies.map((c) => (typeof c === 'string' ? c : c.name || String(c)))
+                  : undefined,
+              }
+            : undefined,
+        }}
+      />
     </div>
   );
 };

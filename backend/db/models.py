@@ -67,3 +67,13 @@ class AuditLog(Base):
     action = Column(String, nullable=False)
     entity = Column(String, nullable=True)
     description = Column(String, nullable=True)
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    role = Column(String, nullable=False)       # "user" | "assistant"
+    content = Column(String, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+

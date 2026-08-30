@@ -66,6 +66,7 @@ from api.routes.role_fit import router as role_fit_router
 from api.routes.routes_auth import router as auth_router
 from api.routes.routes_profile import router as profile_router
 from api.routes.routes_admin import router as admin_router
+from api.routes.routes_chat import router as chat_router
 
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(jobs_router, prefix="/api/v1")
@@ -75,6 +76,7 @@ app.include_router(role_fit_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(profile_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(chat_router, prefix="/api/v1")
 
 # 2. Register Root Health endpoint
 from api.schemas.analytics import HealthResponse

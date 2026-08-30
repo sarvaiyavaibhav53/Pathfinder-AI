@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import SideNavBar from '../components/SideNavBar';
 import { useDomain } from '../context/DomainContext';
 import { useDashboardData } from '../context/DashboardDataContext';
+import ChatWidget from '../components/ChatWidget';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -343,6 +344,30 @@ const Dashboard = () => {
           </button>
         </section>
       </main>
+
+      <ChatWidget
+        pageType="dashboard"
+        contextData={{
+          domain: domain || undefined,
+          roleFit: roleFit
+            ? {
+                predicted_role: roleFit.predicted_role || undefined,
+                confidence: typeof roleFit.confidence === 'number' ? roleFit.confidence : undefined,
+              }
+            : undefined,
+          recommendation: roadmap
+            ? {
+                match_percent: typeof roadmap.match_score === 'number' ? roadmap.match_score : undefined,
+                missing_skills: Array.isArray(roadmap.missing_skills)
+                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.name || String(s)))
+                  : undefined,
+                companies_you_would_qualify_for: Array.isArray(roadmap.qualified_companies)
+                  ? roadmap.qualified_companies.map((c) => (typeof c === 'string' ? c : c.name || String(c)))
+                  : undefined,
+              }
+            : undefined,
+        }}
+      />
     </div>
   );
 };

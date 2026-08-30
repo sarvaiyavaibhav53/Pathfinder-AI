@@ -119,3 +119,81 @@ Strict Constraints:
     except Exception as e:
         logger.error(f"Gemini roadmap generation failed: {e}", exc_info=True)
         return {"narrative": None, "warnings": [f"Generation failed: {str(e)}"]}
+
+def generate_chat_reply(prompt: str) -> dict:
+    """Generates a grounded conversational response using the Gemini model fallback chain."""
+    if not GEMINI_API_KEY:
+        return {
+            "answer": "I am currently unable to generate a response because the AI model is not configured.",
+            "warnings": ["GEMINI_API_KEY not configured"]
+        }
+
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        last_error = None
+
+        for i, model in enumerate(GEMINI_MODEL_CHAIN):
+            try:
+                response = _call_gemini_with_model(prompt, model, client)
+                answer = response.text.strip() if response and response.text else ""
+
+                if not answer:
+                    logger.warning(
+                        "GEMINI_CHAT_EMPTY_RESPONSE model=%s trying_next=%s",
+                        model,
+                        GEMINI_MODEL_CHAIN[i + 1] if i + 1 < len(GEMINI_MODEL_CHAIN) else None,
+                    )
+                    last_error = f"Empty response from model {model}"
+                    continue
+
+                warnings = []
+                if i > 0:
+                    logger.warning(
+                        "GEMINI_CHAT_FALLBACK_USED primary=%s used=%s position=%d",
+                        GEMINI_MODEL_CHAIN[0], model, i,
+                    )
+                    warnings.append(f"Primary model unavailable — used fallback: {model}")
+
+                return {"answer": answer, "warnings": warnings}
+
+            except ClientError as e:
+                status = getattr(e, "code", None) or getattr(e, "status_code", None)
+                if status not in RECOVERABLE_STATUS_CODES:
+                    logger.error(
+                        "GEMINI_CHAT_NONRECOVERABLE_ERROR model=%s status=%s error=%s",
+                        model, status, e, exc_info=True,
+                    )
+                    return {
+                        "answer": "I'm sorry, I encountered an error processing your request.",
+                        "warnings": [f"Generation failed: {str(e)}"]
+                    }
+
+                logger.warning(
+                    "GEMINI_CHAT_MODEL_UNAVAILABLE model=%s status=%s trying_next=%s",
+                    model, status,
+                    GEMINI_MODEL_CHAIN[i + 1] if i + 1 < len(GEMINI_MODEL_CHAIN) else None,
+                )
+                last_error = e
+                continue
+
+            except Exception as e:
+                logger.warning("GEMINI_CHAT_MODEL_UNEXPECTED_ERROR model=%s error=%s", model, e)
+                last_error = e
+                continue
+
+        logger.error(
+            "GEMINI_CHAT_ALL_MODELS_FAILED chain=%s last_error=%s",
+            GEMINI_MODEL_CHAIN, last_error, exc_info=True
+        )
+        return {
+            "answer": "I'm currently unable to answer due to high model traffic. Please try again in a moment.",
+            "warnings": [f"All models unavailable. Last error: {last_error}"]
+        }
+
+    except Exception as e:
+        logger.error(f"Gemini chat reply generation failed: {e}", exc_info=True)
+        return {
+            "answer": "An error occurred while generating a response. Please try again.",
+            "warnings": [f"Generation failed: {str(e)}"]
+        }
+

@@ -1,5 +1,5 @@
 from db.database import Base, engine, SessionLocal
-from db.models import User, UserProfile, Job, SkillScore, Admin, AuditLog
+from db.models import User, UserProfile, Job, SkillScore, Admin, AuditLog, ChatMessage
 from sqlalchemy import text
 import bcrypt
 
