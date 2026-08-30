@@ -294,11 +294,23 @@ const Roadmap = () => {
           recommendation: roadmap
             ? {
                 match_percent: typeof roadmap.match_score === 'number' ? roadmap.match_score : undefined,
+                recognized_skills: Array.isArray(roadmap.recognized_skills)
+                  ? roadmap.recognized_skills
+                  : undefined,
                 missing_skills: Array.isArray(roadmap.missing_skills)
-                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.name || String(s)))
+                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.skill || String(s)))
+                  : undefined,
+                learning_priority: Array.isArray(roadmap.learning_priority)
+                  ? roadmap.learning_priority
+                  : undefined,
+                estimated_learning_weeks: typeof roadmap.estimated_learning_weeks === 'number'
+                  ? roadmap.estimated_learning_weeks
                   : undefined,
                 companies_you_would_qualify_for: Array.isArray(roadmap.qualified_companies)
                   ? roadmap.qualified_companies.map((c) => (typeof c === 'string' ? c : c.name || String(c)))
+                  : undefined,
+                roadmap_narrative: typeof roadmap.roadmap_narrative === 'string'
+                  ? roadmap.roadmap_narrative
                   : undefined,
               }
             : undefined,

@@ -357,9 +357,12 @@ const Dashboard = () => {
             : undefined,
           recommendation: roadmap
             ? {
-                match_percent: typeof roadmap.match_score === 'number' ? roadmap.match_score : undefined,
+                // FIXED: use matchConfidence (the value actually shown as
+                // "MATCH" / "X% profile fit" on this page), not
+                // roadmap.match_score, which is never rendered here.
+                match_percent: matchConfidence,
                 missing_skills: Array.isArray(roadmap.missing_skills)
-                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.name || String(s)))
+                  ? roadmap.missing_skills.map((s) => (typeof s === 'string' ? s : s.skill || String(s)))
                   : undefined,
                 companies_you_would_qualify_for: Array.isArray(roadmap.qualified_companies)
                   ? roadmap.qualified_companies.map((c) => (typeof c === 'string' ? c : c.name || String(c)))

@@ -13,10 +13,14 @@ class ChatContextRecommendation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     match_percent: Optional[float] = Field(None, ge=0.0, le=100.0)
+    recognized_skills: Optional[List[str]] = Field(None, max_length=30)
     missing_skills: Optional[List[str]] = Field(None, max_length=20)
+    learning_priority: Optional[List[str]] = Field(None, max_length=10)
+    estimated_learning_weeks: Optional[int] = Field(None, ge=0, le=260)
     companies_you_would_qualify_for: Optional[List[str]] = Field(None, max_length=20)
+    roadmap_narrative: Optional[str] = Field(None, max_length=2000)
 
-    @field_validator("missing_skills", "companies_you_would_qualify_for")
+    @field_validator("missing_skills", "companies_you_would_qualify_for", "recognized_skills", "learning_priority")
     @classmethod
     def validate_list_items(cls, items: Optional[List[str]]) -> Optional[List[str]]:
         if items is not None:
@@ -50,8 +54,8 @@ class ChatRequest(BaseModel):
     def validate_context_size(self):
         if self.context is not None:
             context_json = json.dumps(self.context.model_dump())
-            if len(context_json.encode("utf-8")) > 4096:
-                raise ValueError("Context size exceeds maximum allowed limit of 4KB.")
+            if len(context_json.encode("utf-8")) > 8192:
+                raise ValueError("Context size exceeds maximum allowed limit of 8KB.")
         return self
 
 class ChatHistoryItem(BaseModel):
